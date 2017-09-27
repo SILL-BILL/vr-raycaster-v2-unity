@@ -22,9 +22,11 @@ public class VRBaseRaycaster : MonoBehaviour
 	public float		distance			= 50f;	// Raycastの有効距離
 	public float		fixedProcessTime	= 1f;	// 注視完了時間
 	public float		fixedActivateTime	= 0.5f;	// 注視が有効化されるまでの時間
-	
+
+	[SerializeField] private bool	onlyHitShowFlag = true;		// 注視時だけ注視ポインターを表示をするかのフラグ
 	[SerializeField] private Transform	gazePointer;	// 注視ポインター
-	[SerializeField] private Image		progress;		// プログレス
+	[SerializeField] private float			gazePointerCameraDistance = 0.8f;
+	[SerializeField] private Image			progress;		// プログレス
 	#endregion // Inspector Settings
 
 
@@ -56,7 +58,14 @@ public class VRBaseRaycaster : MonoBehaviour
 	/// </summary>
 	void Start ()
 	{
-		
+		gazePointer.parent = playerHead.transform;
+		gazePointer.localPosition = new Vector3 (0, 0, gazePointerCameraDistance);
+
+		if (onlyHitShowFlag) {
+			HideGazePointer ();
+		} else {
+			ShowGazePointer ();
+		}
 	}
 	
 	/// <summary>
@@ -134,7 +143,7 @@ public class VRBaseRaycaster : MonoBehaviour
 				eventTrigger = null;
 			}
 			// 注視点の非表示
-			HideGazePointer ();
+			if(onlyHitShowFlag) HideGazePointer ();
 			// 初期化
 			hasNotTrigger		= false;
 			isProcess			= false;
@@ -151,6 +160,10 @@ public class VRBaseRaycaster : MonoBehaviour
 			gazePointer.position = hit.point;
 			float scl = Vector3.Distance (playerHead.position, hit.point);
 			gazePointer.localScale = new Vector3 (scl, scl, scl);
+		} else {
+			gazePointer.localPosition = new Vector3 (0, 0, gazePointerCameraDistance);
+			gazePointer.localEulerAngles = Vector3.zero;
+			gazePointer.localScale = Vector3.one;
 		}
 	}
 
